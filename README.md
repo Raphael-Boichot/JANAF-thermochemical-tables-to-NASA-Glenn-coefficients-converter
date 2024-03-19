@@ -13,4 +13,15 @@ The text output must exactly follow this formalism to be red by Chemkin and code
 
 The code is quite simple to use: provide a text file with T, H/(RT), Cp/R and S/R in columns and it will calculate the low temperature and high temperature polynomials, then format a text output compatible with NASA Glenn coefficients formalism. It also allows verifying this file integrity (or any other) and plotting the entropy, enthalpy and heat capacity as a function of temperature.
 
+## Example of code output for carbon dioxide
+    CO2               L 7/88C   1O   2    0    0G    200.00   6000.00 1350.00    0 1
+    +4.62537358e+00+2.75453121e-03-1.00132575e-06+1.61339471e-10-9.22210240e-15    2
+    -4.90178145e+04-1.86786957e+00+2.37883898e+00+8.89413299e-03-7.16523679e-06    3
+    +2.85937031e-09-4.44677422e-13-4.83746410e+04+9.80192108e+00                   4
+
+## Example of graphical output for carbon dioxide
+![](Codes/Cp_R_NASA_recreated.png)
+
+
 This code was made for my own use at work, for juggling between thermochemical databases and Chemkin. I decline any responsibility in the event of a rocket launch failure or satellite crash on mars following the misuse of these codes.
+
