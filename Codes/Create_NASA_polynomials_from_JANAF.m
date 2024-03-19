@@ -1,11 +1,11 @@
-%Created by Raphael BOICHOT around 2018, updated in March 2024
+%Created by Raphael BOICHOT around 2018, updated in March 2024 for public release
 %Format of entry data : T(K) H/(RT)(-) Cp/R(-) S/R(-) in columns
 clc;
 clear;
 close all;
 
 Low_temp_threshold=800;    %Low temperature threshold for cutting temperature search
-High_temp_threshold=1400;  %High temperature threshold for cutting temperature search
+High_temp_threshold=1600;  %High temperature threshold for cutting temperature search
 Searching_T_step=50;       %Searching step size in T for cutting temperature
 n=1;                       %Skip data every n points to accelerate algorithm
 
@@ -171,7 +171,7 @@ H_R_HT=a1_HT+a2_HT.*T/2+a3_HT.*T.^2/3+a4_HT.*T.^3/4+a5_HT.*T.^4/5+a6_HT./T;
 S_R_HT=a1_HT.*log(T)+a2_HT.*T+a3_HT.*T.^2/2+a4_HT.*T.^3/3+a5_HT.*T.^4/4+a7_HT;
 
 figure(1)
-plot(A,log10(res),A(I),log10(res(I)),'o','MarkerFaceColor','red');
+plot(A,log10(res),A(I),log10(res(I)),'o','MarkerFaceColor','red','LineWidth',2);
 title('Residuals vs T cutting','Fontsize',Default_font_size)
 ylabel('Log10 residuals','Fontsize',Default_font_size)
 xlabel('Temperature(K)','Fontsize',Default_font_size);
@@ -181,7 +181,7 @@ saveas(gcf,'Residuals_vs_Tcut.png');
 
 figure(2)
 plot(T_BT_exp,H_R_BT.*T_BT_exp*(R*1000),'r-',T_BT_exp,H_R_BT_exp.*T_BT_exp.*(R*1000),'--g',...
-    T_HT_exp,H_R_HT.*T_HT_exp*(R*1000),'r-',T_HT_exp,H_R_HT_exp.*T_HT_exp.*(R*1000),'--g')
+    T_HT_exp,H_R_HT.*T_HT_exp*(R*1000),'r-',T_HT_exp,H_R_HT_exp.*T_HT_exp.*(R*1000),'--g','LineWidth',2)
 title('Enthalpy vs T','Fontsize',Default_font_size)
 ylabel('H(J/kmol)','Fontsize',Default_font_size)
 xlabel('Temperature(K)','Fontsize',Default_font_size);
@@ -191,7 +191,7 @@ saveas(gcf,'H_R_NASA_recreated.png');
 
 figure(3)
 plot(T_BT_exp,Cp_R_BT*(R*1000),'r-',T_BT_exp,Cp_R_BT_exp.*(R*1000),'--g',...
-    T_HT_exp,Cp_R_HT*(R*1000),'r-',T_HT_exp,Cp_R_HT_exp.*(R*1000),'--g');
+    T_HT_exp,Cp_R_HT*(R*1000),'r-',T_HT_exp,Cp_R_HT_exp.*(R*1000),'--g','LineWidth',2);
 title('Heat capacity vs T','Fontsize',Default_font_size)
 ylabel('Cp(J/(kmol.K))','Fontsize',Default_font_size)
 xlabel('Temperature(K)','Fontsize',Default_font_size);
@@ -201,7 +201,7 @@ saveas(gcf,'Cp_R_NASA_recreated.png');
 
 figure(4)
 plot(T_BT_exp,S_R_BT*(R*1000),'r-',T_BT_exp,S_R_BT_exp.*(R*1000),'--g',...
-    T_HT_exp,S_R_HT*(R*1000),'r-',T_HT_exp,S_R_HT_exp.*(R*1000),'--g');
+    T_HT_exp,S_R_HT*(R*1000),'r-',T_HT_exp,S_R_HT_exp.*(R*1000),'--g','LineWidth',2);
 title('Entropy vs T','Fontsize',Default_font_size)
 ylabel('S(J/(kmol.K))','Fontsize',Default_font_size)
 xlabel('Temperature in K','Fontsize',Default_font_size);

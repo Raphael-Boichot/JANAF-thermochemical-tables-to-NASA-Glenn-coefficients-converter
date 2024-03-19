@@ -1,4 +1,4 @@
-%Created by Raphael BOICHOT around 2018, updated in March 2024
+%Created by Raphael BOICHOT around 2018, updated in March 2024 for public release
 %Format of output data : T(K) H/(RT)(-) Cp/R(-) S/R(-) in columns
 clc;
 clear;
@@ -41,7 +41,7 @@ Cp_R_HT=a1_HT+a2_HT.*T_HT+a3_HT.*T_HT.^2+a4_HT.*T_HT.^3+a5_HT.*T_HT.^4;
 S_R_HT=a1_HT.*log(T_HT)+a2_HT.*T_HT+a3_HT.*T_HT.^2/2+a4_HT.*T_HT.^3/3+a5_HT.*T_HT.^4/4+a7_HT;
 
 figure(1)
-plot(T_BT,H_R_BT.*T_BT*(R*1000),T_HT,H_R_HT.*T_HT*(R*1000))
+plot(T_BT,H_R_BT.*T_BT*(R*1000),T_HT,H_R_HT.*T_HT*(R*1000),'LineWidth',2)
 title('Enthalpy vs T','Fontsize',Default_fontsize)
 ylabel('H (J/kmol)','Fontsize',Default_fontsize)
 xlabel('Temperature in K','Fontsize',Default_fontsize);
@@ -49,7 +49,7 @@ set(gca,'FontSize',Default_fontsize)
 saveas(gcf,'H_R_NASA.png');
 
 figure(2)
-plot(T_BT,Cp_R_BT*(R*1000),T_HT,Cp_R_HT*(R*1000))
+plot(T_BT,Cp_R_BT*(R*1000),T_HT,Cp_R_HT*(R*1000),'LineWidth',2)
 title('Heat capacity vs T','Fontsize',Default_fontsize)
 ylabel('Cp (J/(kmol.K))','Fontsize',Default_fontsize)
 xlabel('Temperature in K','Fontsize',Default_fontsize);
@@ -57,7 +57,7 @@ set(gca,'FontSize',Default_fontsize)
 saveas(gcf,'Cp_R_NASA.png');
 
 figure(3)
-plot(T_BT,S_R_BT*(R*1000),T_HT,S_R_HT*(R*1000))
+plot(T_BT,S_R_BT*(R*1000),T_HT,S_R_HT*(R*1000),'LineWidth',2)
 title('Entropy vs T','Fontsize',Default_fontsize)
 ylabel('S (J/(kmol.K))','Fontsize',Default_fontsize)
 xlabel('Temperature in K','Fontsize',Default_fontsize);
