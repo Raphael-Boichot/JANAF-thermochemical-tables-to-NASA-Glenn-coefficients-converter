@@ -4,6 +4,8 @@ These codes allows to generate [NASA Glenn Coefficients](https://ntrs.nasa.gov/a
 ## The NASA formalism for thermochemical data
 ![](Polynomials.png)
 
+H stands for enthalpy, S for entropy and Cp for heat capacity (R being the gas constant). The NASA formalism assumes that any set of thermochemical data can be fitted with a 6th order polynom. As H and S are functions of Cp and T, polynomial coefficients are common except for a6 (standard heat of formation at 298 K) and a7 (standard-state entropy at 298K).
+
 ## The NASA formalism for text output
 ![](Polynomials_txt.png)
 
