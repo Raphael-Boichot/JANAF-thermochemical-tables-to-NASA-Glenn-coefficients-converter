@@ -13,6 +13,8 @@ The text output must exactly follow this formalism to be red by Chemkin and code
 
 The code is quite simple to use: provide a text file with T, H/(RT), Cp/R and S/R in columns and it will calculate the low temperature and high temperature polynomials, then format a text output compatible with NASA Glenn coefficients formalism. It also allows verifying this file integrity (or any other) and plotting the entropy, enthalpy and heat capacity as a function of temperature.
 
+In details, the code first search for the best temperature limit between low and high temperature to minimize residuals with the two polynomials, then performs a final fitting with a fixed limit. At the junction between them, it forces continuity of slopes and values of Cp. As Cp is then integrated to obtain H and S, slope continuity with Cp ensures slope continuity with H and S. I'm not sure Cp slope continuity is a mandatory condition regarding NASA standards but I heard that years ago and it's not that difficult to code. Finally, the code formats data to comply with NASA Glenn Coefficients formalism. It generates a text output on Matlab prompat and a txt file.
+
 ## Example of code output for carbon dioxide
     CO2               L 7/88C   1O   2    0    0G    200.00   6000.00 1350.00    0 1
     +4.62537358e+00+2.75453121e-03-1.00132575e-06+1.61339471e-10-9.22210240e-15    2
@@ -22,6 +24,6 @@ The code is quite simple to use: provide a text file with T, H/(RT), Cp/R and S/
 ## Example of graphical output for carbon dioxide
 ![](Codes/Cp_R_NASA.png)
 
-
+## Warning
 This code was made for my own use at work, for juggling between thermochemical databases and Chemkin. I decline any responsibility in the event of a rocket launch failure or satellite crash on mars following the misuse of these codes.
 
