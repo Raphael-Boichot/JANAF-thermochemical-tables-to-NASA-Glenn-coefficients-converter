@@ -4,7 +4,7 @@ These codes allows to generate [NASA Glenn Coefficients](https://ntrs.nasa.gov/a
 ## Example of entry data: the [JANAF table for Carbon dioxide](https://janaf.nist.gov/pdf/JANAF-FourthEd-1998-Carbon.pdf)
 ![](Example.png)
 
-The deal is to turn this ugly table into these fancy polynomials:
+The deal is to turn this ugly table into these fancy polynomials. Of course it has been made for many usual gases, but some remains under this form, and no luck, you could need them for your calculations.
 
 ## The NASA formalism for thermochemical data
 ![](Polynomials.png)
