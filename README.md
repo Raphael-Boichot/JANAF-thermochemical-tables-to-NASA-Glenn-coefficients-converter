@@ -1,10 +1,10 @@
-# JANAF thermochemical tables to NASA polynomials converter
-These codes allows to generate [NASA Glenn Coefficients](https://ntrs.nasa.gov/api/citations/20020085330/downloads/20020085330.pdf) from JANAF (Joint Army-Navy-Air Force) [thermochemical tables](https://janaf.nist.gov/janaf4pdf.html) or any other thermochemical table formatted like the JANAF tables found on the [NIST Chemistry Notebook](https://webbook.nist.gov/chemistry/) or your own data found by ab-initio calculations for example. The text formatting of the NASA polynomials is rather strict and can found in some [old edition of the Chemkin manual](CHEMKIN_III_manual(1996).pdf).
+# A tool to converte JANAF thermochemical tables to NASA Glenn coefficients
+These codes allows to generate [NASA Glenn Coefficients](https://ntrs.nasa.gov/api/citations/20020085330/downloads/20020085330.pdf) from JANAF (Joint Army-Navy-Air Force) [thermochemical tables](https://janaf.nist.gov/janaf4pdf.html) or any other thermochemical table formatted like the JANAF tables found on the [NIST Chemistry Notebook](https://webbook.nist.gov/chemistry/) or your own data found by ab-initio calculations for example. The text formatting of the NASA polynomials is rather strict and can found in some [old edition of the Chemkin manual](CHEMKIN_III_manual(1996).pdf). The theory is the following: 
 
 ## The NASA formalism for thermochemical data
 ![](Polynomials.png)
 
-H stands for enthalpy, S for entropy and Cp for heat capacity (R being the gas constant). The NASA formalism assumes that any set of thermochemical data can be fitted with a 4th order polynom. As H and S are functions of Cp and T, polynomial coefficients are common except for a6 (standard heat of formation at 298 K time R) and a7 (standard-state entropy at 298K times R). For better accuracy, the data are divided in two sets: loww and high temperature. The limit between the two is a free parameter to change in order to increase fitting accruracy (what does the code). Dividing all data by R avoids the mismatch between Calories and Joules units, which is a common source of error.
+H stands for enthalpy, S for entropy and Cp for heat capacity (R being the gas constant). The NASA formalism assumes that any set of thermochemical data on a large range of temperature can be fitted with 4th order polynoms. As H and S are functions of Cp and T, polynomial coefficients are common between them except for a6 (standard heat of formation at 298 K time R) and a7 (standard-state entropy at 298K times R). For better accuracy, the data are divided in two sets: low and high temperature. The limit between the two is a free parameter to change in order to increase fitting accruracy (what the code does). Dividing all data by R avoids the mismatch between Calories and Joules units, which is a common source of error, as there is less than an order of magnitude difference between them.
 
 ## The NASA formalism for text output
 ![](Polynomials_txt.png)
@@ -13,7 +13,7 @@ The text output must exactly follow this formalism to be red by Chemkin and code
 
 The code is quite simple to use: provide a text file with T, H/(RT), Cp/R and S/R in columns and it will calculate the low temperature and high temperature polynomials, then format a text output compatible with NASA Glenn coefficients formalism. It also allows verifying this file integrity (or any other) and plotting the entropy, enthalpy and heat capacity as a function of temperature.
 
-In details, the code first search for the best temperature limit between low and high temperature to minimize residuals with the two polynomials, then performs a final fitting with a fixed limit. At the junction between them, it forces continuity of slopes and values of Cp. As Cp is then integrated to obtain H and S, slope continuity with Cp ensures slope continuity with H and S. I'm not sure Cp slope continuity is a mandatory condition regarding NASA standards but I heard that years ago and it's not that difficult to code. Finally, the code formats data to comply with NASA Glenn Coefficients formalism. It generates a text output on Matlab prompat and a txt file.
+In details, the code first search for the best temperature limit between low and high temperature to minimize residuals with the two polynomials, then performs a final fitting with a fixed limit. At the junction between them, it forces continuity of slopes and values of Cp. As Cp is then integrated to obtain H and S, slope continuity with Cp ensures slope continuity its integrals. I'm not that sure Cp slope continuity is a mandatory condition regarding NASA standards but I heard that years ago from people having a working experince at NASA and it's not that difficult to code. Finally, the code formats data to comply with NASA Glenn Coefficients formalism. It generates a text output on Matlab prompt, a txt file and some fancy output to verify than everything gone smoothly.
 
 ## Example of code output for carbon dioxide
     CO2               L 7/88C   1O   2    0    0G    200.00   6000.00 1350.00    0 1
@@ -21,8 +21,10 @@ In details, the code first search for the best temperature limit between low and
     -4.90178145e+04-1.86786957e+00+2.37883898e+00+8.89413299e-03-7.16523679e-06    3
     +2.85937031e-09-4.44677422e-13-4.83746410e+04+9.80192108e+00                   4
 
-## Example of graphical output for carbon dioxide
+## Example of fancy graphical output for carbon dioxide
 ![](Codes/Cp_R_NASA.png)
+
+The two colors indicate the low and high temperature domains.
 
 ## Warning
 This code was made for my own use at work, for juggling between thermochemical databases and Chemkin. I decline any responsibility in the event of a rocket launch failure or satellite crash on mars following the misuse of these codes.
