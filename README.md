@@ -20,7 +20,7 @@ The code is quite simple to use: provide a text file with T, H/(RT), Cp/R and S/
     +2.85937031e-09-4.44677422e-13-4.83746410e+04+9.80192108e+00                   4
 
 ## Example of graphical output for carbon dioxide
-![](Codes/Cp_R_NASA_recreated.png)
+![](Codes/Cp_R_NASA.png)
 
 
 This code was made for my own use at work, for juggling between thermochemical databases and Chemkin. I decline any responsibility in the event of a rocket launch failure or satellite crash on mars following the misuse of these codes.
