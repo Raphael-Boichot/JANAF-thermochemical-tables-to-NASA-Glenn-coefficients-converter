@@ -6,7 +6,7 @@ These codes allows to generate [NASA Glenn Coefficients](https://ntrs.nasa.gov/a
 
 The deal is to turn this ugly table into some fancy polynomials. Of course it has been made for many usual gases that are yet introduced into databases, but some remains under this form, and no luck, you could need them for your calculations.
 
-## The NASA formalism for thermochemical data
+## The NASA formalism for polynomials giving Cp/R, H/RT and S/R
 ![](Documentation/Polynomials.png)
 
 H stands for enthalpy, S for entropy and Cp for heat capacity (R being the gas constant). H and S are always given relative to a reference state at 298 K and 1 bar.
