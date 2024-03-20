@@ -31,8 +31,6 @@ In details, the code first search for the best temperature limit between low and
 ## Example of fancy graphical output for carbon dioxide
 ![](Codes/NASA_fitting.png)
 
-The two colors indicate the low and high temperature domains.
-
 ## Warning
 This code was made for my own use at work, for juggling between thermochemical databases and Chemkin. I decline any responsibility in the event of a rocket launch failure or a satellite crash on Mars following the misuse of these codes.
 
