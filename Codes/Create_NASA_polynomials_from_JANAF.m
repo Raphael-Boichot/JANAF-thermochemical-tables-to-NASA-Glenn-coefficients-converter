@@ -229,7 +229,7 @@ disp('*****************end of text to copy paste********************************
 
 fileID = fopen('Output.dat','w');
 fwrite(fileID,[column_1_24,column_25_44,column_45,'    ',...
-    num2str(Low_temp_threshold,'%.2f'),'   ',num2str(High_temp_threshold,'%.2f'),' ',num2str(Cutting_temperature,'%.2f'),'    ','0 1']);
+    num2str(Low_temp_threshold,'%.2f'),'   ',num2str(High_temp_threshold,'%.2f'),' ',num2str(Cutting_temperature,'%.2f'),'      1']);
 fwrite(fileID,char(13));
 fwrite(fileID,newline);
 fwrite(fileID,[num2str(a1_HT,'%+10.8e\n'),num2str(a2_HT,'%+10.8e\n'),num2str(a3_HT,'%+10.8e\n'),num2str(a4_HT,'%+10.8e\n'),num2str(a5_HT,'%+10.8e\n'),'    2']);
