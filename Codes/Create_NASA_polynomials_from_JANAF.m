@@ -2,18 +2,18 @@
 %Format of entry data : T(K) H/(RT)(-) Cp/R(-) S/R(-) in columns
 clc;
 clear;
-close all;
+
 
 Low_temp_threshold=800;    %Low temperature threshold for cutting temperature search
-High_temp_threshold=1600;  %High temperature threshold for cutting temperature search
-Searching_T_step=50;       %Searching step size in T for cutting temperature
-n=1;                       %Skip data every n points to accelerate algorithm
+High_temp_threshold=1200;  %High temperature threshold for cutting temperature search
+Searching_T_step=10;       %Searching step size in K for cutting temperature
+n=5;                       %Skip data every n points to accelerate algorithm
 
 R=8.314;
-Default_font_size=16;
+Default_font_size=14;
 format long
 global a1 a2 a3 a4 a5 Cp_R_Cutting Cp_R_slope_Cutting Cutting_temperature;
-raw_data = load('JANAF_data.txt') ;
+raw_data = load('JANAF_input.txt') ;
 T_exp = raw_data(:,1);
 H_R_exp = raw_data(:,2);
 Cp_R_exp = raw_data(:,3);
@@ -27,6 +27,7 @@ disp('Searching the best Low temp/High temp cutting point for polynomials')
 tic
 for Cutting_temperature=Low_temp_threshold:Searching_T_step:High_temp_threshold
     k=k+1;
+    disp(['Progression: ',num2str((Cutting_temperature-Low_temp_threshold)/(High_temp_threshold-Low_temp_threshold)*100,3),'%'])
     cutting_pos=find(T_exp==Cutting_temperature);
     %******************************************************************************
     %We began by low temperature range: optimization without constraints
@@ -51,7 +52,7 @@ for Cutting_temperature=Low_temp_threshold:Searching_T_step:High_temp_threshold
     %Then a7 for S, a1:a6 been fixed now (S is the H intergral over T)
     [x_opt,res2] = fminsearch(@dist_entropie,x_0,OPTIONS,T_BT_exp,S_R_BT_exp) ;
     a7_BT=x_opt;
-    
+
     %Then we deal with the high temperature range: optimization with
     %constraints of Cp slope and Cp continuity
     T_HT_exp=T_exp(cutting_pos:n:end);
@@ -65,7 +66,7 @@ for Cutting_temperature=Low_temp_threshold:Searching_T_step:High_temp_threshold
     T=T+1;%local slope
     Cp_R_Cutting_plus=a1+a2*T+a3*T.^2+a4*T.^3+a5*T.^4;
     Cp_R_slope_Cutting=Cp_R_Cutting_plus-Cp_R_Cutting;
-    
+
     %first the polynomials for Cp (a1:a5) with forced Cp value and slope at
     %the HT/BT boundary
     [x_opt,res3] = fminsearch(@dist_Cp_HT,x_0,OPTIONS,T_HT_exp,Cp_R_HT_exp) ;
@@ -170,44 +171,44 @@ Cp_R_HT=a1_HT+a2_HT.*T+a3_HT.*T.^2+a4_HT.*T.^3+a5_HT.*T.^4;
 H_R_HT=a1_HT+a2_HT.*T/2+a3_HT.*T.^2/3+a4_HT.*T.^3/4+a5_HT.*T.^4/5+a6_HT./T;
 S_R_HT=a1_HT.*log(T)+a2_HT.*T+a3_HT.*T.^2/2+a4_HT.*T.^3/3+a5_HT.*T.^4/4+a7_HT;
 
+figure('Position',[100 100 1200 1000]);
 figure(1)
+subplot(2,2,1)
 plot(A,log10(res),A(I),log10(res(I)),'o','MarkerFaceColor','red','LineWidth',2);
 title('Residuals vs T cutting','Fontsize',Default_font_size)
 ylabel('Log10 residuals','Fontsize',Default_font_size)
 xlabel('Temperature(K)','Fontsize',Default_font_size);
-text(A(I),log10(res(I)),'Local minimum');
+text(A(I)+25,log10(res(I)),'Local minimum');
 set(gca,'FontSize',Default_font_size)
-saveas(gcf,'Residuals_vs_Tcut.png');
 
-figure(2)
+subplot(2,2,2)
 plot(T_BT_exp,H_R_BT.*T_BT_exp*(R),'r-',T_BT_exp,H_R_BT_exp.*T_BT_exp.*R,'--g',...
     T_HT_exp,H_R_HT.*T_HT_exp*(R),'r-',T_HT_exp,H_R_HT_exp.*T_HT_exp.*R,'--g','LineWidth',2)
 title('Enthalpy vs T','Fontsize',Default_font_size)
 ylabel('H (J/mol)','Fontsize',Default_font_size)
 xlabel('Temperature(K)','Fontsize',Default_font_size);
-legend('Fitted data','Input data');
+legend('Fitted data','Input data','Location','southeast');
 set(gca,'FontSize',Default_font_size)
-saveas(gcf,'H_R_NASA_recreated.png');
 
-figure(3)
+subplot(2,2,3)
 plot(T_BT_exp,Cp_R_BT*(R),'r-',T_BT_exp,Cp_R_BT_exp.*R,'--g',...
     T_HT_exp,Cp_R_HT*(R),'r-',T_HT_exp,Cp_R_HT_exp.*R,'--g','LineWidth',2);
 title('Heat capacity vs T','Fontsize',Default_font_size)
 ylabel('Cp (J/(mol.K))','Fontsize',Default_font_size)
 xlabel('Temperature(K)','Fontsize',Default_font_size);
-legend('Fitted data','Input data');
+legend('Fitted data','Input data','Location','southeast');
 set(gca,'FontSize',Default_font_size)
-saveas(gcf,'Cp_R_NASA_recreated.png');
 
-figure(4)
+subplot(2,2,4)
 plot(T_BT_exp,S_R_BT*(R),'r-',T_BT_exp,S_R_BT_exp.*R,'--g',...
     T_HT_exp,S_R_HT*(R),'r-',T_HT_exp,S_R_HT_exp.*R,'--g','LineWidth',2);
 title('Entropy vs T','Fontsize',Default_font_size)
 ylabel('S (J/(mol.K))','Fontsize',Default_font_size)
 xlabel('Temperature in K','Fontsize',Default_font_size);
-legend('Fitted data','Input data');
+legend('Fitted data','Input data','Location','southeast');
 set(gca,'FontSize',Default_font_size)
-saveas(gcf,'S_R_NASA_recreated.png');
+
+saveas(gcf,'NASA_fitting.png');
 
 f='%+10.8e\n';
 %****************Free comments, must fit within columns 1:24***
