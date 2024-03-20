@@ -23,10 +23,10 @@ The code is quite simple to use: provide a text file with T, H/(RT), Cp/R and S/
 In details, the code first search for the best temperature limit between low and high temperature to minimize residuals with the two polynomials, then performs a final fitting with a fixed optimal limit. Minimization of residuals between data and polynomials is performed with a simple Nelder-Mead algorithm as this is not a particularly wicked problem. At the junction between polynomials, the code forces continuity of slopes and values of Cp. As Cp is then integrated to obtain H and S, slope continuity with Cp ensures slope continuity with its integrals. I'm not that sure Cp slope continuity is a mandatory condition regarding NASA standards but I heard it was years ago from people having a past working experience at NASA in the 90's. It's in fact not that difficult to code. Finally, the code formats data to comply with NASA Glenn Coefficients shape. It generates a text output on Matlab prompt, a formatted file and some fancy outputs to verify than everything gone smoothly during optimization.
 
 ## Example of code output for carbon dioxide
-    CO2               L 7/88C   1O   2    0    0G    200.00   6000.00 1350.00    0 1
-    +4.62537358e+00+2.75453121e-03-1.00132575e-06+1.61339471e-10-9.22210240e-15    2
-    -4.90178145e+04-1.86786957e+00+2.37883898e+00+8.89413299e-03-7.16523679e-06    3
-    +2.85937031e-09-4.44677422e-13-4.83746410e+04+9.80192108e+00                   4
+    CO2               L 7/88C   1O   2    0    0G    200.00 6000.00 1130.00        1
+    +4.67221863e+00+2.69721740e-03-9.76836469e-07+1.56959938e-10-8.94332238e-15    2
+    -4.90459094e+04-2.14746323e+00+2.38296917e+00+8.84846213e-03-7.00533303e-06    3
+    +2.64397355e-09-3.47724832e-13-4.83748900e+04+9.78656006e+00                   4
 
 ## Example of fancy graphical output for carbon dioxide
 ![](Codes/NASA_fitting.png)
