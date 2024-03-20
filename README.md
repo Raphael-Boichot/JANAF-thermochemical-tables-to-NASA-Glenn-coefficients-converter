@@ -2,19 +2,19 @@
 These codes allows to generate [NASA Glenn Coefficients](https://ntrs.nasa.gov/api/citations/20020085330/downloads/20020085330.pdf) from JANAF (Joint Army-Navy-Air Force) [thermochemical tables](https://janaf.nist.gov/janaf4pdf.html) or any other thermochemical table formatted like the JANAF tables found on the [NIST Chemistry Notebook](https://webbook.nist.gov/chemistry/) or your own data found by ab-initio calculations for example. The text formatting of the NASA polynomials is rather strict and can found in some [old edition of the Chemkin manual](CHEMKIN_III_manual(1996).pdf). 
 
 ## Example of entry data: the [JANAF table for Carbon dioxide](https://janaf.nist.gov/pdf/JANAF-FourthEd-1998-Carbon.pdf)
-![](Example.png)
+![](Documentation/Example.png)
 
 The deal is to turn this ugly table into some fancy polynomials. Of course it has been made for many usual gases that are yet introduced into databases, but some remains under this form, and no luck, you could need them for your calculations.
 
 ## The NASA formalism for thermochemical data
-![](Polynomials.png)
+![](Documentation/Polynomials.png)
 
 H stands for enthalpy, S for entropy and Cp for heat capacity (R being the gas constant). H and S are always given relative to a reference state at 298 K and 1 bar.
 
 The NASA formalism assumes that any set of thermochemical data on a large range of temperature can be fitted in chunks with 4th order polynoms. As H and S are functions of Cp and T, polynomial coefficients are common between them except for a6 (standard heat of formation at 298 K time R) and a7 (standard-state entropy at 298K times R). For better accuracy, the data are divided in two sets: low and high temperature. The limit between the two is a free parameter to change in order to increase fitting accruracy (what the code does). Dividing all data by R avoids the mismatch between Calories and Joules units, which is a common source of error, as there is less than an order of magnitude difference between them.
 
 ## The NASA formalism for text output
-![](Polynomials_txt.png)
+![](Documentation/Polynomials_txt.png)
 
 The text output must exactly follow this formalism to be red by Chemkin and codes using Chemkin as core for solving chemistry (like ANSYS Fluent or CFD-Ace for example).
 
@@ -29,7 +29,7 @@ In details, the code first search for the best temperature limit between low and
     +2.85937031e-09-4.44677422e-13-4.83746410e+04+9.80192108e+00                   4
 
 ## Example of fancy graphical output for carbon dioxide
-![](Codes/Cp_R_NASA.png)
+![](Codes/NASA_fitting)
 
 The two colors indicate the low and high temperature domains.
 
