@@ -29,7 +29,7 @@ In details, the code first search for the best temperature limit between low and
     +2.85937031e-09-4.44677422e-13-4.83746410e+04+9.80192108e+00                   4
 
 ## Example of fancy graphical output for carbon dioxide
-![](Codes/NASA_fitting)
+![](Codes/NASA_fitting.png)
 
 The two colors indicate the low and high temperature domains.
 
