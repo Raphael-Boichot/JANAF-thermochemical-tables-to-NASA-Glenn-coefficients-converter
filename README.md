@@ -1,7 +1,7 @@
 # A tool to convert JANAF thermochemical tables to NASA Glenn coefficients
 These codes allows to generate [NASA Glenn Coefficients](https://ntrs.nasa.gov/api/citations/20020085330/downloads/20020085330.pdf) from JANAF (Joint Army-Navy-Air Force) [thermochemical tables](https://janaf.nist.gov/janaf4pdf.html) or any other thermochemical table formatted like the JANAF tables found on the [NIST Chemistry Notebook](https://webbook.nist.gov/chemistry/) or your own data found by ab-initio calculations for example. The text formatting of the NASA polynomials is rather strict and can found in some [old edition of the Chemkin manual](CHEMKIN_III_manual(1996).pdf) - See table III. 
 
-Note than JANAF is sometimes spelled JANNAF for Joint Army-Navy-NASA-Air Force, but it is not the correct way of citing this fitting method. Recent implementation of the method uses a [more complete formalism](https://ntrs.nasa.gov/citations/20205003319).
+Note than JANAF is sometimes spelled JANNAF for Joint Army-Navy-NASA-Air Force, but this is a less common way of citing this fitting method. Recent implementation of the method uses a [more complete formalism](https://ntrs.nasa.gov/citations/20205003319).
 
 ## Example of entry data: the [JANAF table for Carbon dioxide](https://janaf.nist.gov/pdf/JANAF-FourthEd-1998-Carbon.pdf)
 ![](Documentation/Example.png)
