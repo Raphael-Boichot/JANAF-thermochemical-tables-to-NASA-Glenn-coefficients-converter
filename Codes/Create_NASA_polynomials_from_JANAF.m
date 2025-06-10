@@ -3,21 +3,28 @@
 clc;
 clear;
 
-
-Low_temp_threshold=800;    %Low temperature threshold for cutting temperature search
+Low_temp_threshold=1000;    %Low temperature threshold for cutting temperature search
 High_temp_threshold=1200;  %High temperature threshold for cutting temperature search
-Searching_T_step=10;       %Searching step size in K for cutting temperature
-n=5;                       %Skip data every n points to accelerate algorithm
+resampling_T=10;           %temperature steps for resampling
 
 R=8.314;
 Default_font_size=14;
 format long
 global a1 a2 a3 a4 a5 Cp_R_Cutting Cp_R_slope_Cutting Cutting_temperature;
 raw_data = load('JANAF_input.txt') ;
-T_exp = raw_data(:,1);
-H_R_exp = raw_data(:,2);
-Cp_R_exp = raw_data(:,3);
-S_R_exp = raw_data(:,4);
+T_exp_raw = raw_data(:,1);
+H_R_exp_raw = raw_data(:,2);
+Cp_R_exp_raw = raw_data(:,3);
+S_R_exp_raw = raw_data(:,4);
+
+%resampling the experimental point to match any txt file
+min_T_resampled=round(min(T_exp_raw)/resampling_T)*resampling_T;
+max_T_resampled=round(max(T_exp_raw)/resampling_T)*resampling_T;
+T_exp=min_T_resampled:resampling_T:max_T_resampled;
+T_exp=T_exp';
+H_R_exp=interp1(T_exp_raw,H_R_exp_raw,T_exp,"spline");
+Cp_R_exp=interp1(T_exp_raw,Cp_R_exp_raw,T_exp,"spline");
+S_R_exp=interp1(T_exp_raw,S_R_exp_raw,T_exp,"spline");
 
 OPTIONS = optimset(@fminsearch) ;
 OPTIONS = optimset(OPTIONS,'MaxFunEvals',4000,'MaxIter',4000,'TolFun',1e-6,'TolX',1e-6) ;
@@ -25,16 +32,16 @@ OPTIONS = optimset(OPTIONS,'Display','off') ;
 k=0;
 disp('Searching the best Low temp/High temp cutting point for polynomials')
 tic
-for Cutting_temperature=Low_temp_threshold:Searching_T_step:High_temp_threshold
+for Cutting_temperature=Low_temp_threshold:resampling_T:High_temp_threshold
     k=k+1;
     disp(['Progression: ',num2str((Cutting_temperature-Low_temp_threshold)/(High_temp_threshold-Low_temp_threshold)*100,3),'%'])
     cutting_pos=find(T_exp==Cutting_temperature);
     %******************************************************************************
     %We began by low temperature range: optimization without constraints
-    T_BT_exp=T_exp(1:n:cutting_pos);
-    H_R_BT_exp=H_R_exp(1:n:cutting_pos);
-    S_R_BT_exp=S_R_exp(1:n:cutting_pos);
-    Cp_R_BT_exp=Cp_R_exp(1:n:cutting_pos);
+    T_BT_exp=T_exp(1:1:cutting_pos);
+    H_R_BT_exp=H_R_exp(1:1:cutting_pos);
+    S_R_BT_exp=S_R_exp(1:1:cutting_pos);
+    Cp_R_BT_exp=Cp_R_exp(1:1:cutting_pos);
     x_0 = [10 1e-4 1e-7 1e-11 1e-13];%some realistic starting values
     %first the polynomials for Cp (a1:a5)
     [x_opt, res0] = fminsearch(@dist_Cp,x_0,OPTIONS,T_BT_exp,Cp_R_BT_exp) ;
@@ -55,10 +62,10 @@ for Cutting_temperature=Low_temp_threshold:Searching_T_step:High_temp_threshold
 
     %Then we deal with the high temperature range: optimization with
     %constraints of Cp slope and Cp continuity
-    T_HT_exp=T_exp(cutting_pos:n:end);
-    H_R_HT_exp=H_R_exp(cutting_pos:n:end);
-    S_R_HT_exp=S_R_exp(cutting_pos:n:end);
-    Cp_R_HT_exp=Cp_R_exp(cutting_pos:n:end);
+    T_HT_exp=T_exp(cutting_pos:1:end);
+    H_R_HT_exp=H_R_exp(cutting_pos:1:end);
+    S_R_HT_exp=S_R_exp(cutting_pos:1:end);
+    Cp_R_HT_exp=Cp_R_exp(cutting_pos:1:end);
     x_0 = [10 1e-4 1e-7 1e-11 1e-13];%some realistic starting values
     %here we get the local Cp and Cp derivative at BT/HT transition
     T=Cutting_temperature;
@@ -87,7 +94,7 @@ for Cutting_temperature=Low_temp_threshold:Searching_T_step:High_temp_threshold
 end
 toc
 [M,I]=min(res);
-A=Low_temp_threshold:Searching_T_step:High_temp_threshold;
+A=Low_temp_threshold:resampling_T:High_temp_threshold;
 disp(['Best cutting temperature = ',num2str(A(I))]);
 disp(['Residuals = ',num2str(res(I))]);
 disp(' ');
@@ -99,10 +106,10 @@ High_temp_threshold=T_exp(end);
 cutting_pos=find(T_exp==Cutting_temperature);
 
 %We began by low temperature range: optimization without constraints
-T_BT_exp=T_exp(1:n:cutting_pos);
-H_R_BT_exp=H_R_exp(1:n:cutting_pos);
-S_R_BT_exp=S_R_exp(1:n:cutting_pos);
-Cp_R_BT_exp=Cp_R_exp(1:n:cutting_pos);
+T_BT_exp=T_exp(1:1:cutting_pos);
+H_R_BT_exp=H_R_exp(1:1:cutting_pos);
+S_R_BT_exp=S_R_exp(1:1:cutting_pos);
+Cp_R_BT_exp=Cp_R_exp(1:1:cutting_pos);
 x_0 = [10 1e-4 1e-7 1e-11 1e-13];%some realistic starting values
 %first the polynomials for Cp (a1:a5)
 [x_opt, res0] = fminsearch(@dist_Cp,x_0,OPTIONS,T_BT_exp,Cp_R_BT_exp) ;
@@ -127,10 +134,10 @@ x_0 = 1;%some random starting value
 a7_BT=x_opt;
 %Then we deal with the high temperature range: optimization with
 %constraints of Cp slope and Cp continuity
-T_HT_exp=T_exp(cutting_pos:n:end);
-H_R_HT_exp=H_R_exp(cutting_pos:n:end);
-S_R_HT_exp=S_R_exp(cutting_pos:n:end);
-Cp_R_HT_exp=Cp_R_exp(cutting_pos:n:end);
+T_HT_exp=T_exp(cutting_pos:1:end);
+H_R_HT_exp=H_R_exp(cutting_pos:1:end);
+S_R_HT_exp=S_R_exp(cutting_pos:1:end);
+Cp_R_HT_exp=Cp_R_exp(cutting_pos:1:end);
 x_0 = [10 1e-4 1e-7 1e-11 1e-13];%some realistic starting values
 
 %here we get the local Cp and Cp derivative at BT/HT transition
