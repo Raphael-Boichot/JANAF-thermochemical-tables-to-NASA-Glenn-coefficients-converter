@@ -2,10 +2,11 @@
 %Format of entry data : T(K) H/(RT)(-) Cp/R(-) S/R(-) in columns
 clc;
 clear;
+close all
 
 Low_temp_threshold=1000;    %Low temperature threshold for cutting temperature search
-High_temp_threshold=1200;  %High temperature threshold for cutting temperature search
-resampling_T=10;           %temperature steps for resampling
+High_temp_threshold=1200;   %High temperature threshold for cutting temperature search
+resampling_T=10;             %temperature steps for resampling
 
 R=8.314;
 Default_font_size=14;
@@ -26,10 +27,11 @@ H_R_exp=interp1(T_exp_raw,H_R_exp_raw,T_exp,"spline");
 Cp_R_exp=interp1(T_exp_raw,Cp_R_exp_raw,T_exp,"spline");
 S_R_exp=interp1(T_exp_raw,S_R_exp_raw,T_exp,"spline");
 
-OPTIONS = optimset('MaxFunEvals',4000,'MaxIter',4000,'TolFun',1e-6,'TolX',1e-6,'Display','off') ;
+OPTIONS = optimset('MaxFunEvals',4000,'MaxIter',4000,'TolFun',1e-6,'TolX',1e-6,'Display','off');
 k=0;
 disp('Searching the best Low temp/High temp cutting point for polynomials')
 tic
+polynomials=[];
 for Cutting_temperature=Low_temp_threshold:resampling_T:High_temp_threshold
     k=k+1;
     disp(['Progression: ',num2str((Cutting_temperature-Low_temp_threshold)/(High_temp_threshold-Low_temp_threshold)*100,3),'%'])
@@ -42,20 +44,23 @@ for Cutting_temperature=Low_temp_threshold:resampling_T:High_temp_threshold
     Cp_R_BT_exp=Cp_R_exp(1:1:cutting_pos);
     x_0 = [10 1e-4 1e-7 1e-11 1e-13];%some realistic starting values
     %first the polynomials for Cp (a1:a5)
-    [x_opt, res0] = fminsearch(@dist_Cp,x_0,OPTIONS,T_BT_exp,Cp_R_BT_exp) ;
+    fun = @(x) dist_Cp(x, T_BT_exp, Cp_R_BT_exp);%this is the clean way to pass more than one parameter to fminsearch
+    [x_opt_BT, res0] = fminsearch(fun,x_0,OPTIONS) ;
     %We need these values for the H and S optimization
-    a1=x_opt(1);
-    a2=x_opt(2);
-    a3=x_opt(3);
-    a4=x_opt(4);
-    a5=x_opt(5);
+    a1=x_opt_BT(1);
+    a2=x_opt_BT(2);
+    a3=x_opt_BT(3);
+    a4=x_opt_BT(4);
+    a5=x_opt_BT(5);
     %Then a6 for H, a1:a5 been fixed now (H is the Cp intergral)
     x_0 = 1;%some random starting value
-    [x_opt,res1] = fminsearch(@dist_enthalpie,x_0,OPTIONS,T_BT_exp,H_R_BT_exp) ;
+    fun = @(x) dist_enthalpie(x, T_BT_exp, H_R_BT_exp);%this is the clean way to pass more than one parameter to fminsearch
+    [x_opt,res1] = fminsearch(fun,x_0);
     a6_BT=x_opt;
     x_0 = 1;%some random starting value
     %Then a7 for S, a1:a6 been fixed now (S is the H intergral over T)
-    [x_opt,res2] = fminsearch(@dist_entropie,x_0,OPTIONS,T_BT_exp,S_R_BT_exp) ;
+    fun = @(x) dist_entropie(x, T_BT_exp, S_R_BT_exp);%this is the clean way to pass more than one parameter to fminsearch
+    [x_opt,res2] = fminsearch(fun,x_0,OPTIONS);
     a7_BT=x_opt;
 
     %Then we deal with the high temperature range: optimization with
@@ -74,97 +79,52 @@ for Cutting_temperature=Low_temp_threshold:resampling_T:High_temp_threshold
 
     %first the polynomials for Cp (a1:a5) with forced Cp value and slope at
     %the HT/BT boundary
-    [x_opt,res3] = fminsearch(@dist_Cp_HT,x_0,OPTIONS,T_HT_exp,Cp_R_HT_exp) ;
+    fun = @(x) dist_Cp_HT(x, T_HT_exp, Cp_R_HT_exp);%this is the clean way to pass more than one parameter to fminsearch
+    [x_opt_HT,res3] = fminsearch(fun,x_0,OPTIONS) ;
     %We need these values for the H and S optimization
-    a1=x_opt(1);
-    a2=x_opt(2);
-    a3=x_opt(3);
-    a4=x_opt(4);
-    a5=x_opt(5);
+    a1=x_opt_HT(1);
+    a2=x_opt_HT(2);
+    a3=x_opt_HT(3);
+    a4=x_opt_HT(4);
+    a5=x_opt_HT(5);
     x_0 = 1 ;%some random starting value
-    [x_opt,res4] = fminsearch(@dist_enthalpie,x_0,OPTIONS,T_HT_exp,H_R_HT_exp) ;
+    fun = @(x) dist_enthalpie(x, T_HT_exp, H_R_HT_exp);%this is the clean way to pass more than one parameter to fminsearch
+    [x_opt,res4] = fminsearch(fun,x_0,OPTIONS) ;
     a6_HT=x_opt;
     x_0 = 1 ;%some random starting value
-    [x_opt,res5] = fminsearch(@dist_entropie,x_0,OPTIONS,T_HT_exp,S_R_HT_exp) ;
+    fun = @(x) dist_entropie(x, T_HT_exp, S_R_HT_exp);%this is the clean way to pass more than one parameter to fminsearch
+    [x_opt,res5] = fminsearch(fun,x_0,OPTIONS) ;
     a7_HT=x_opt;
     %******************************************************************************
     res(k)=res0+res1+res2+res3+res4+res5;
+    polynomials(k,:)=[x_opt_HT, a6_HT, a7_HT, x_opt_BT, a6_BT, a7_BT];
 end
 toc
 [M,I]=min(res);
 A=Low_temp_threshold:resampling_T:High_temp_threshold;
 disp(['Best cutting temperature = ',num2str(A(I))]);
 disp(['Residuals = ',num2str(res(I))]);
+disp(['Polynonmials = ', num2str(polynomials(I,:))])
 disp(' ');
 
-%********************Polynomial optimization********************************
-Low_temp_threshold=T_exp(1);
-Cutting_temperature=A(I);
-High_temp_threshold=T_exp(end);
-cutting_pos=find(T_exp==Cutting_temperature);
-
-%We began by low temperature range: optimization without constraints
-T_BT_exp=T_exp(1:1:cutting_pos);
-H_R_BT_exp=H_R_exp(1:1:cutting_pos);
-S_R_BT_exp=S_R_exp(1:1:cutting_pos);
-Cp_R_BT_exp=Cp_R_exp(1:1:cutting_pos);
-x_0 = [10 1e-4 1e-7 1e-11 1e-13];%some realistic starting values
-%first the polynomials for Cp (a1:a5)
-[x_opt, res0] = fminsearch(@dist_Cp,x_0,OPTIONS,T_BT_exp,Cp_R_BT_exp) ;
-a1_BT=x_opt(1);
-a2_BT=x_opt(2);
-a3_BT=x_opt(3);
-a4_BT=x_opt(4);
-a5_BT=x_opt(5);
-%We need these values for the H and S optimization
-a1=x_opt(1);
-a2=x_opt(2);
-a3=x_opt(3);
-a4=x_opt(4);
-a5=x_opt(5);
-%Then a6 for H, a1:a5 been fixed now (H is the Cp intergral)
-x_0 = 1;%some random starting value
-[x_opt,res1] = fminsearch(@dist_enthalpie,x_0,OPTIONS,T_BT_exp,H_R_BT_exp) ;
-a6_BT=x_opt;
-x_0 = 1;%some random starting value
-%Then a7 for S, a1:a6 been fixed now (S is the H intergral over T)
-[x_opt,res2] = fminsearch(@dist_entropie,x_0,OPTIONS,T_BT_exp,S_R_BT_exp) ;
-a7_BT=x_opt;
-%Then we deal with the high temperature range: optimization with
-%constraints of Cp slope and Cp continuity
-T_HT_exp=T_exp(cutting_pos:1:end);
-H_R_HT_exp=H_R_exp(cutting_pos:1:end);
-S_R_HT_exp=S_R_exp(cutting_pos:1:end);
-Cp_R_HT_exp=Cp_R_exp(cutting_pos:1:end);
-x_0 = [10 1e-4 1e-7 1e-11 1e-13];%some realistic starting values
-
-%here we get the local Cp and Cp derivative at BT/HT transition
-T=Cutting_temperature;
-Cp_R_Cutting=a1_BT+a2_BT.*T+a3_BT.*T.^2+a4_BT.*T.^3+a5_BT.*T.^4;
-T=T+1;%local slope
-Cp_R_Cutting_plus=a1_BT+a2_BT.*T+a3_BT.*T.^2+a4_BT.*T.^3+a5_BT.*T.^4;
-Cp_R_slope_Cutting=Cp_R_Cutting_plus-Cp_R_Cutting;
-
-[x_opt,res3] = fminsearch(@dist_Cp_HT,x_0,OPTIONS,T_HT_exp,Cp_R_HT_exp) ;
-a1_HT=x_opt(1);
-a2_HT=x_opt(2);
-a3_HT=x_opt(3);
-a4_HT=x_opt(4);
-a5_HT=x_opt(5);
-%We need these values for the H and S optimization
-a1=x_opt(1);
-a2=x_opt(2);
-a3=x_opt(3);
-a4=x_opt(4);
-a5=x_opt(5);
-x_0 = 1 ;%some random starting value
-[x_opt,res4] = fminsearch(@dist_enthalpie,x_0,OPTIONS,T_HT_exp,H_R_HT_exp) ;
-a6_HT=x_opt;
-x_0 = 1 ;
-[x_opt,res5] = fminsearch(@dist_entropie,x_0,OPTIONS,T_HT_exp,S_R_HT_exp) ;
-a7_HT=x_opt;%some random starting value
-
+%********************Plotting********************************
 %data for plotting
+a1_HT=polynomials(I,1);
+a2_HT=polynomials(I,2);
+a3_HT=polynomials(I,3);
+a4_HT=polynomials(I,4);
+a5_HT=polynomials(I,5);
+a6_HT=polynomials(I,6);
+a7_HT=polynomials(I,7);
+
+a1_BT=polynomials(I,8);
+a2_BT=polynomials(I,9);
+a3_BT=polynomials(I,10);
+a4_BT=polynomials(I,11);
+a5_BT=polynomials(I,12);
+a6_BT=polynomials(I,13);
+a7_BT=polynomials(I,14);
+
 T=T_BT_exp;
 Cp_R_BT=a1_BT+a2_BT.*T+a3_BT.*T.^2+a4_BT.*T.^3+a5_BT.*T.^4;
 H_R_BT=a1_BT+a2_BT.*T/2+a3_BT.*T.^2/3+a4_BT.*T.^3/4+a5_BT.*T.^4/5+a6_BT./T;
@@ -226,7 +186,7 @@ column_45='G';
 % All the next text must fit EXACTLY within the same columns/lines
 disp('****************start of text to copy paste*************************************');
 disp([column_1_24,column_25_44,column_45,'    ',...
-    num2str(Low_temp_threshold,'%.2f'),' ',num2str(High_temp_threshold,'%.2f'),' ',num2str(Cutting_temperature,'%.2f'),'        1']);
+    num2str(min_T_resampled,'%.2f'),' ',num2str(max_T_resampled,'%.2f'),' ',num2str(A(I),'%.2f'),'        1']);
 disp([num2str(a1_HT,f),num2str(a2_HT,f),num2str(a3_HT,f),num2str(a4_HT,f),num2str(a5_HT,f),'    2']);
 disp([num2str(a6_HT,f),num2str(a7_HT,f),num2str(a1_BT,f),num2str(a2_BT,f),num2str(a3_BT,f),'    3']);
 disp([num2str(a4_BT,f),num2str(a5_BT,f),num2str(a6_BT,f),num2str(a7_BT,f),'                   4']);
@@ -234,7 +194,7 @@ disp('*****************end of text to copy paste********************************
 
 fileID = fopen('Output.dat','w');
 fwrite(fileID,[column_1_24,column_25_44,column_45,'    ',...
-    num2str(Low_temp_threshold,'%.2f'),'   ',num2str(High_temp_threshold,'%.2f'),' ',num2str(Cutting_temperature,'%.2f'),'      1']);
+    num2str(min_T_resampled,'%.2f'),'   ',num2str(max_T_resampled,'%.2f'),' ',num2str(A(I),'%.2f'),'      1']);
 fwrite(fileID,char(13));
 fwrite(fileID,newline);
 fwrite(fileID,[num2str(a1_HT,'%+10.8e\n'),num2str(a2_HT,'%+10.8e\n'),num2str(a3_HT,'%+10.8e\n'),num2str(a4_HT,'%+10.8e\n'),num2str(a5_HT,'%+10.8e\n'),'    2']);
