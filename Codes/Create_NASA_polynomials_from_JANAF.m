@@ -4,7 +4,7 @@ clc;
 clear;
 close all
 
-Low_temp_threshold=1000;    %Low temperature threshold for cutting temperature search
+Low_temp_threshold=600;    %Low temperature threshold for cutting temperature search
 High_temp_threshold=1200;   %High temperature threshold for cutting temperature search
 resampling_T=10;             %temperature steps for resampling
 
