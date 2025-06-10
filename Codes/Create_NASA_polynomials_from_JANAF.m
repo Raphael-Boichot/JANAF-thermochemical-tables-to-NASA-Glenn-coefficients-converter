@@ -1,18 +1,20 @@
 %Created by Raphael BOICHOT around 2018, updated in March 2024 for public release
+%major revision 10 June 2025
 %Format of entry data : T(K) H/(RT)(-) Cp/R(-) S/R(-) in columns
 clc;
 clear;
 close all
 
-Low_temp_threshold=600;    %Low temperature threshold for cutting temperature search
-High_temp_threshold=1200;   %High temperature threshold for cutting temperature search
-resampling_T=10;             %temperature steps for resampling
+Low_temp_threshold=1000;            %Low temperature threshold for cutting temperature search
+High_temp_threshold=1200;           %High temperature threshold for cutting temperature search
+resampling_T=5;                     %temperature steps for resampling and cutting temp search
+raw_data = load('JANAF_input.txt') ;%your data to fit T(K) H/(RT)(-) Cp/R(-) S/R(-) in columns
 
 R=8.314;
 Default_font_size=14;
 format long
 global a1 a2 a3 a4 a5 Cp_R_Cutting Cp_R_slope_Cutting Cutting_temperature;
-raw_data = load('JANAF_input.txt') ;
+
 T_exp_raw = raw_data(:,1);
 H_R_exp_raw = raw_data(:,2);
 Cp_R_exp_raw = raw_data(:,3);
@@ -21,20 +23,23 @@ S_R_exp_raw = raw_data(:,4);
 %resampling the experimental point to match any txt file
 min_T_resampled=round(min(T_exp_raw)/resampling_T)*resampling_T;
 max_T_resampled=round(max(T_exp_raw)/resampling_T)*resampling_T;
+Low_temp_threshold=round(max(Low_temp_threshold)/resampling_T)*resampling_T;
+High_temp_threshold=round(max(High_temp_threshold)/resampling_T)*resampling_T;
+
 T_exp=min_T_resampled:resampling_T:max_T_resampled;
 T_exp=T_exp';
 H_R_exp=interp1(T_exp_raw,H_R_exp_raw,T_exp,"spline");
 Cp_R_exp=interp1(T_exp_raw,Cp_R_exp_raw,T_exp,"spline");
 S_R_exp=interp1(T_exp_raw,S_R_exp_raw,T_exp,"spline");
 
-OPTIONS = optimset('MaxFunEvals',4000,'MaxIter',4000,'TolFun',1e-6,'TolX',1e-6,'Display','off');
+OPTIONS = optimset('MaxFunEvals',6000,'MaxIter',6000,'TolFun',1e-9,'TolX',1e-9,'Display','off');
 k=0;
-disp('Searching the best Low temp/High temp cutting point for polynomials')
+disp('Searching the best cutting temperature for polynomials')
 tic
 polynomials=[];
 for Cutting_temperature=Low_temp_threshold:resampling_T:High_temp_threshold
     k=k+1;
-    disp(['Progression: ',num2str((Cutting_temperature-Low_temp_threshold)/(High_temp_threshold-Low_temp_threshold)*100,3),'%'])
+    disp(['Optimization progress: ',num2str((Cutting_temperature-Low_temp_threshold)/(High_temp_threshold-Low_temp_threshold)*100,3),'%'])
     cutting_pos=find(T_exp==Cutting_temperature);
     %******************************************************************************
     %We began by low temperature range: optimization without constraints
@@ -125,16 +130,17 @@ a5_BT=polynomials(I,12);
 a6_BT=polynomials(I,13);
 a7_BT=polynomials(I,14);
 
-T=T_BT_exp;
-Cp_R_BT=a1_BT+a2_BT.*T+a3_BT.*T.^2+a4_BT.*T.^3+a5_BT.*T.^4;
-H_R_BT=a1_BT+a2_BT.*T/2+a3_BT.*T.^2/3+a4_BT.*T.^3/4+a5_BT.*T.^4/5+a6_BT./T;
-S_R_BT=a1_BT.*log(T)+a2_BT.*T+a3_BT.*T.^2/2+a4_BT.*T.^3/3+a5_BT.*T.^4/4+a7_BT;
+T_BT=min_T_resampled:resampling_T:A(I);
+T_BT=T_BT';
+H_R_BT=a1_BT+a2_BT.*T_BT/2+a3_BT.*T_BT.^2/3+a4_BT.*T_BT.^3/4+a5_BT.*T_BT.^4/5+a6_BT./T_BT;
+Cp_R_BT=a1_BT+a2_BT.*T_BT+a3_BT.*T_BT.^2+a4_BT.*T_BT.^3+a5_BT.*T_BT.^4;
+S_R_BT=a1_BT.*log(T_BT)+a2_BT.*T_BT+a3_BT.*T_BT.^2/2+a4_BT.*T_BT.^3/3+a5_BT.*T_BT.^4/4+a7_BT;
 
-%data for plotting
-T=T_HT_exp;
-Cp_R_HT=a1_HT+a2_HT.*T+a3_HT.*T.^2+a4_HT.*T.^3+a5_HT.*T.^4;
-H_R_HT=a1_HT+a2_HT.*T/2+a3_HT.*T.^2/3+a4_HT.*T.^3/4+a5_HT.*T.^4/5+a6_HT./T;
-S_R_HT=a1_HT.*log(T)+a2_HT.*T+a3_HT.*T.^2/2+a4_HT.*T.^3/3+a5_HT.*T.^4/4+a7_HT;
+T_HT=A(I):resampling_T:max_T_resampled;
+T_HT=T_HT';
+H_R_HT=a1_HT+a2_HT.*T_HT/2+a3_HT.*T_HT.^2/3+a4_HT.*T_HT.^3/4+a5_HT.*T_HT.^4/5+a6_HT./T_HT;
+Cp_R_HT=a1_HT+a2_HT.*T_HT+a3_HT.*T_HT.^2+a4_HT.*T_HT.^3+a5_HT.*T_HT.^4;
+S_R_HT=a1_HT.*log(T_HT)+a2_HT.*T_HT+a3_HT.*T_HT.^2/2+a4_HT.*T_HT.^3/3+a5_HT.*T_HT.^4/4+a7_HT;
 
 figure('Position',[100 100 1200 1000]);
 figure(1)
@@ -147,30 +153,27 @@ text(A(I)+25,log10(res(I)),'Local minimum');
 set(gca,'FontSize',Default_font_size)
 
 subplot(2,2,2)
-plot(T_BT_exp,H_R_BT.*T_BT_exp*(R),'r-',T_BT_exp,H_R_BT_exp.*T_BT_exp.*R,'--g',...
-    T_HT_exp,H_R_HT.*T_HT_exp*(R),'r-',T_HT_exp,H_R_HT_exp.*T_HT_exp.*R,'--g','LineWidth',2)
+plot(T_BT,H_R_BT.*T_BT*R,'r-',T_HT,H_R_HT.*T_HT*R,'m-',T_exp_raw,H_R_exp_raw.*T_exp_raw.*R,'--g','LineWidth',2)
 title('Enthalpy vs T','Fontsize',Default_font_size)
 ylabel('H (J/mol)','Fontsize',Default_font_size)
 xlabel('Temperature(K)','Fontsize',Default_font_size);
-legend('Fitted data','Input data','Location','southeast');
+legend('Fit low temp','Fit high temp','Input data','Location','southeast');
 set(gca,'FontSize',Default_font_size)
 
 subplot(2,2,3)
-plot(T_BT_exp,Cp_R_BT*(R),'r-',T_BT_exp,Cp_R_BT_exp.*R,'--g',...
-    T_HT_exp,Cp_R_HT*(R),'r-',T_HT_exp,Cp_R_HT_exp.*R,'--g','LineWidth',2);
+plot(T_BT,Cp_R_BT*(R),'r-',T_HT,Cp_R_HT*R,'m-', T_exp_raw,Cp_R_exp_raw.*R,'--g','LineWidth',2)
 title('Heat capacity vs T','Fontsize',Default_font_size)
 ylabel('Cp (J/(mol.K))','Fontsize',Default_font_size)
 xlabel('Temperature(K)','Fontsize',Default_font_size);
-legend('Fitted data','Input data','Location','southeast');
+legend('Fit low temp','Fit high temp','Input data','Location','southeast');
 set(gca,'FontSize',Default_font_size)
 
 subplot(2,2,4)
-plot(T_BT_exp,S_R_BT*(R),'r-',T_BT_exp,S_R_BT_exp.*R,'--g',...
-    T_HT_exp,S_R_HT*(R),'r-',T_HT_exp,S_R_HT_exp.*R,'--g','LineWidth',2);
+plot(T_BT,S_R_BT*R,'r-', T_HT,S_R_HT*R,'m-',T_exp_raw,S_R_exp_raw.*R,'--g','LineWidth',2);
 title('Entropy vs T','Fontsize',Default_font_size)
 ylabel('S (J/(mol.K))','Fontsize',Default_font_size)
 xlabel('Temperature in K','Fontsize',Default_font_size);
-legend('Fitted data','Input data','Location','southeast');
+legend('Fit low temp','Fit high temp','Input data','Location','southeast');
 set(gca,'FontSize',Default_font_size)
 
 saveas(gcf,'NASA_fitting.png');
