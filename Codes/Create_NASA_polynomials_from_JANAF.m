@@ -26,9 +26,7 @@ H_R_exp=interp1(T_exp_raw,H_R_exp_raw,T_exp,"spline");
 Cp_R_exp=interp1(T_exp_raw,Cp_R_exp_raw,T_exp,"spline");
 S_R_exp=interp1(T_exp_raw,S_R_exp_raw,T_exp,"spline");
 
-OPTIONS = optimset(@fminsearch) ;
-OPTIONS = optimset(OPTIONS,'MaxFunEvals',4000,'MaxIter',4000,'TolFun',1e-6,'TolX',1e-6) ;
-OPTIONS = optimset(OPTIONS,'Display','off') ;
+OPTIONS = optimset('MaxFunEvals',4000,'MaxIter',4000,'TolFun',1e-6,'TolX',1e-6,'Display','off') ;
 k=0;
 disp('Searching the best Low temp/High temp cutting point for polynomials')
 tic
