@@ -32,7 +32,7 @@ fclose(fileID);
 %Plotting
 T_BT=Low_temp:1:Cutting_temp;
 H_R_BT=a1_BT+a2_BT.*T_BT/2+a3_BT.*T_BT.^2/3+a4_BT.*T_BT.^3/4+a5_BT.*T_BT.^4/5+a6_BT./T_BT;
-Cp_R_BT=a1_BT+a2_BT.*T_BT+a3_BT.*T_BT.^2+a4_BT.*T_BT.^3+a5_BT.*T_BT.^4
+Cp_R_BT=a1_BT+a2_BT.*T_BT+a3_BT.*T_BT.^2+a4_BT.*T_BT.^3+a5_BT.*T_BT.^4;
 S_R_BT=a1_BT.*log(T_BT)+a2_BT.*T_BT+a3_BT.*T_BT.^2/2+a4_BT.*T_BT.^3/3+a5_BT.*T_BT.^4/4+a7_BT;
 
 T_HT=Cutting_temp:1:High_temp;
@@ -70,4 +70,5 @@ H_R=[H_R_BT H_R_HT]';
 Cp_R=[Cp_R_BT Cp_R_HT]';
 raw_data=[T_R H_R Cp_R S_R ];
 save thermo_data.txt raw_data -ascii;
+
 
