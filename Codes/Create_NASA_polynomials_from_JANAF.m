@@ -10,7 +10,7 @@ High_temp_threshold=1200;           %High temperature threshold for cutting temp
 resampling_T=5;                     %temperature steps for resampling and cutting temp search
 raw_data = load('JANAF_input.txt') ;%your data to fit T(K) H/(RT)(-) Cp/R(-) S/R(-) in columns
 
-R=8.314;
+R=8.314462618;%(J/kmol.K)
 Default_font_size=14;
 format long
 global a1 a2 a3 a4 a5 Cp_R_Cutting Cp_R_slope_Cutting Cutting_temperature;

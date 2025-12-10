@@ -2,9 +2,9 @@
 %Format of output data : T(K) H/(RT)(-) Cp/R(-) S/R(-) in columns
 clc;
 clear;
-R=8.314;%(J/kmol.K)
+R=8.314462618;%(J/kmol.K)
 Default_fontsize=16;
-fileID = fopen('Output.dat','r');
+fileID = fopen('Input.dat','r');
 A = fread(fileID,45,'*char');
 Data=cell2mat(textscan(char(fread(fileID,35,'*char')),'%f'));
 Low_temp = Data(1);
@@ -64,11 +64,28 @@ xlabel('Temperature in K','Fontsize',Default_fontsize);
 set(gca,'FontSize',Default_fontsize)
 saveas(gcf,'S_R_NASA.png');
 
-T_R=[T_BT T_HT]';
+T=[T_BT T_HT]';
 S_R=[S_R_BT S_R_HT]';
-H_R=[H_R_BT H_R_HT]';
+H_RT=[H_R_BT H_R_HT]';
 Cp_R=[Cp_R_BT Cp_R_HT]';
-raw_data=[T_R H_R Cp_R S_R ];
+raw_data=[T H_RT Cp_R S_R ];
 save thermo_data.txt raw_data -ascii;
 
+Tref = 298.15;
 
+fprintf('Cutting_temp = %g\n', Cutting_temp);
+fprintf('Low coeffs a1..a7 =\n');
+fprintf('%g ', a1_BT,a2_BT,a3_BT,a4_BT,a5_BT,a6_BT,a7_BT);
+fprintf('\nHigh coeffs a1..a7 =\n');
+fprintf('%g ', a1_HT,a2_HT,a3_HT,a4_HT,a5_HT,a6_HT,a7_HT);
+fprintf('\n');
+
+% compute H/RT at 298.15 using both sets
+H_R_low_ref = a1_BT + a2_BT*Tref/2 + a3_BT*Tref^2/3 + a4_BT*Tref^3/4 + a5_BT*Tref^4/5 + a6_BT/Tref;
+H_R_high_ref= a1_HT + a2_HT*Tref/2 + a3_HT*Tref^2/3 + a4_HT*Tref^3/4 + a5_HT*Tref^4/5 + a6_HT/Tref;
+
+H_low = H_R_low_ref * R * Tref;
+H_high= H_R_high_ref * R * Tref;
+
+fprintf('H(298) using LOW coefficients  = %g J/mol\n', H_low);
+fprintf('H(298) using HIGH coefficients = %g J/mol\n', H_high);
