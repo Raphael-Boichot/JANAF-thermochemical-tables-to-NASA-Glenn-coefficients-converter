@@ -1,0 +1,5 @@
+run Manipulate_NASA_polynomials_for_Coacac3.m
+run Create_NASA_polynomials_for_Coacac3.m
+pause(5)
+run Manipulate_NASA_polynomials_for_Coacac2.m
+run Create_NASA_polynomials_for_Coacac2.m
